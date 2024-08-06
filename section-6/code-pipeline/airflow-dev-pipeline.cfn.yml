@@ -89,15 +89,19 @@ Resources:
             build:
               commands:
                 - echo Build started on `date`
-                - docker build -t "${REPOSITORY_URI}:latest" .
-                - docker tag "${REPOSITORY_URI}:latest" "${REPOSITORY_URI}:${TAG}"
+                - echo Building the Docker image...
+                - docker build -t $REPOSITORY_URI:latest .
+                - docker tag $REPOSITORY_URI:latest $REPOSITORY_URI:$IMAGE_TAG
             post_build:
               commands:
                 - echo Build completed on `date`
-                - echo "Pushing Docker image to ECR"
-                - docker push "${REPOSITORY_URI}:latest"
-                - docker push "${REPOSITORY_URI}:${TAG}"
-                - printf '{"Tag":"%s","RepositoryUri":"%s"}' $TAG $REPOSITORY_URI $PROJECT_NAME $ARTIFACT_BUCKET > build.json
+                - echo Pushing the Docker images...
+                - docker push $REPOSITORY_URI:latest
+                - docker push $REPOSITORY_URI:$IMAGE_TAG
+                - echo Writing image definitions file...
+                - printf '[{"Tag":"%s","RepositoryUri":"%s"}]' $REPOSITORY_URI:$IMAGE_TAG > imagedefinitions.json
+          artifacts:
+            files: imagedefinitions.json      
 
       Environment:
         ComputeType: BUILD_GENERAL1_SMALL
