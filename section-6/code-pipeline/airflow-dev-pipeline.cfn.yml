@@ -80,13 +80,12 @@ Resources:
                 - apt-get -y install jq
             pre_build:
               commands:
-                - echo "Starting docker daemon..."
-                - nohup /usr/local/bin/dockerd --host=unix:///var/run/docker.sock --host=tcp://127.0.0.1:2375 --storage-driver=overlay2&
-                - timeout 15 sh -c "until docker info; do echo .; sleep 1; done"
-                - echo "Logging into Amazon ECR..."
-                - $(aws ecr get-login --no-include-email --region us-east-2)
-                - TAG="$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
-                - IMAGE_URI=$REPO_URI:$IMAGE_TAG
+                - echo Logging in to Amazon ECR...
+                - aws --version
+                - aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 021891591955.dkr.ecr.us-east-2.amazonaws.com
+                - REPOSITORY_URI=012345678910.dkr.ecr.us-west-2.amazonaws.com/hello-world
+                - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+                - IMAGE_TAG=${COMMIT_HASH:=latest}
             build:
               commands:
                 - echo Build started on `date`
