@@ -9,8 +9,6 @@ CodeBuildProject:
         version: 0.2
         phases:
           install:
-            runtime-versions:
-              docker: 18
             commands:
               - echo "Checking network connectivity"
               - ping -c 4 google.com
